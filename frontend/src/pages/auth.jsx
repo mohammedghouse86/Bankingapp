@@ -5,13 +5,6 @@ import { api } from '../api';
 import { useAuth } from '../auth';
 import { Alert, Button, Field, useApi, useForm, useToast } from '../ui';
 
-export const DEMO_ACCOUNTS = [
-  { label: 'Super admin', email: 'admin@kestrelbank.test', password: 'Admin@Kestrel2026!' },
-  { label: 'Manager (Downtown)', email: 'manager.downtown@kestrelbank.test', password: 'Manager@Kestrel1!' },
-  { label: 'Teller (Downtown)', email: 'teller1.downtown@kestrelbank.test', password: 'Teller@Kestrel1!' },
-  { label: 'Customer', email: 'samir.thompson1@example.com', password: 'Customer@Kestrel1!' },
-];
-
 function AuthShell({ children }) {
   return (
     <div className="auth-page">
@@ -51,14 +44,6 @@ export function Login() {
           <Link to="/register">Open an account online</Link>
         </div>
       </form>
-      <div className="demo-accounts">
-        <div className="subtle" style={{ marginBottom: 8 }}>Demo accounts (fictional) — click to fill</div>
-        <div className="row">
-          {DEMO_ACCOUNTS.map((a) => (
-            <Button key={a.email} variant="secondary" size="sm" onClick={() => f.setValues({ email: a.email, password: a.password })}>{a.label}</Button>
-          ))}
-        </div>
-      </div>
     </AuthShell>
   );
 }

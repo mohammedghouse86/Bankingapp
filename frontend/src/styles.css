@@ -312,8 +312,6 @@ table.table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .auth-main { display: grid; place-items: center; padding: 32px 16px; background: var(--surface); }
 .auth-box { width: 100%; max-width: 420px; }
 .auth-box h1 { margin-bottom: 4px; }
-.demo-accounts { margin-top: 20px; border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 12px; }
-.demo-accounts .row button { flex: 1 1 45%; }
 @media (max-width: 900px) { .auth-page { grid-template-columns: 1fr; } .auth-aside { display: none; } }
 
 .timeline { list-style: none; margin: 0; padding: 0; }
