@@ -38,7 +38,7 @@ function createSession(user, req) {
     userAgent: String(req.get('user-agent') || '').slice(0, 200),
     createdAt: new Date(now).toISOString(),
     lastUsedAt: new Date(now).toISOString(),
-    expiresAt: new Date(now + config.refreshTokenTtlSec * 1000).toISOString(),
+    expiresAt: new Date(now + Math.max(config.refreshTokenTtlSec, config.accessTokenTtlSec) * 1000).toISOString(),
     revokedAt: null,
     revokedReason: null,
   };
@@ -54,6 +54,31 @@ function revokeSession(session, reason) {
     session.revokedReason = reason;
   }
 }
+
+/**
+ * Logout ends the interactive session: the refresh token stops working, so the
+ * client must sign in again. Access tokens already issued for the session are
+ * deliberately NOT revoked and stay valid until their own expiry
+ * (ACCESS_TOKEN_TTL_SECONDS). Hard revocation (revokeSession) is reserved for
+ * password/role changes, deactivation and forced sign-out.
+ */
+function endSession(session) {
+  if (!session.loggedOutAt) session.loggedOutAt = nowIso();
+  session.refreshHash = null;
+}
+
+function endUserSessions(userId) {
+  let count = 0;
+  db.sessions.forEach((s) => {
+    if (s.userId === userId && !s.revokedAt && !s.loggedOutAt) {
+      endSession(s);
+      count += 1;
+    }
+  });
+  return count;
+}
+
+const isSessionActive = (s) => isSessionLive(s) && !s.loggedOutAt;
 
 function revokeUserSessions(userId, reason, exceptSessionId) {
   let count = 0;
@@ -74,6 +99,7 @@ function rotateRefreshToken(refreshToken, req) {
   const [sid, secret] = String(refreshToken || '').split('.');
   const session = db.sessions.find((s) => s.id === sid);
   if (!session || !secret) throw unauthorized('Invalid refresh token');
+  if (session.loggedOutAt) throw unauthorized('Session was logged out; sign in again');
   const hash = sha256(secret);
   if (session.previousHashes.includes(hash)) {
     revokeSession(session, 'refresh_token_reuse');
@@ -163,6 +189,6 @@ async function requireStepUp(req, res, next) {
 }
 
 module.exports = {
-  createSession, rotateRefreshToken, revokeSession, revokeUserSessions, isSessionLive,
+  createSession, rotateRefreshToken, revokeSession, revokeUserSessions, isSessionLive, isSessionActive, endSession, endUserSessions,
   authenticate, requirePermission, requireStepUp, adminIpAllowed,
 };

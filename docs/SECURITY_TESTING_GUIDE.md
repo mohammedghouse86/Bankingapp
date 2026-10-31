@@ -6,9 +6,10 @@ Kestrel Bank is built with **strong intended controls**. It is a realistic targe
 
 - Passwords: scrypt (N=16384) with per-user salt. Policy: 10+ characters, upper, lower, digit and symbol.
 - Login: generic error for unknown email and wrong password, with dummy hashing to equalize timing. Lockout after `maxFailedLogins` (5) for `lockoutMinutes` (15).
-- Access token: HS256 JWT, 15 minutes, with pinned `alg`, `iss` and `aud`. The session is re-checked on every request.
+- Access token: HS256 JWT valid for **4 hours**, with pinned `alg`, `iss` and `aud`. The session is re-checked on every request.
+- **Logout** (and logout-all) ends the session: the refresh token stops working and the UI requires a new sign-in. **Access tokens issued before logout deliberately remain valid until they expire** (up to 4 hours), so a captured token keeps working against every endpoint. This is a deliberate configuration of the test target; change `ACCESS_TOKEN_TTL_SECONDS` to shorten the window.
 - Refresh token: opaque, single use, rotated on every refresh. Reusing an old token revokes the whole session.
-- Password change and reset, role change, deactivation and suspension revoke the user's sessions.
+- Password change and reset, role change, deactivation, suspension and admin force sign-out hard-revoke the user's sessions, which invalidates their access tokens immediately.
 - Password reset tokens: single use, 30 minutes, delivered to the simulated email outbox. The response never reveals whether an email exists.
 - Rate limits: 600 requests/minute per IP for the API; 30 per 15 minutes per IP for login, registration, forgot/reset password, refresh and account lookup.
 

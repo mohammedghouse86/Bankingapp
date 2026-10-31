@@ -11,8 +11,8 @@ Columns: *Roles* are the roles allowed by default permissions (object-level and 
 |---|---|---|---|---|---|---|
 | POST | `/api/v1/auth/login` | Authenticate with email and password | none | public | standard |  |
 | POST | `/api/v1/auth/refresh` | Exchange a refresh token for new tokens (rotation) | none | public | standard |  |
-| POST | `/api/v1/auth/logout` | Revoke the current session | authenticated | super_admin, manager, teller, customer | standard |  |
-| POST | `/api/v1/auth/logout-all` | Revoke all sessions of the current user | authenticated | super_admin, manager, teller, customer | standard |  |
+| POST | `/api/v1/auth/logout` | Log out of the current session | authenticated | super_admin, manager, teller, customer | standard |  |
+| POST | `/api/v1/auth/logout-all` | Log out of all sessions of the current user | authenticated | super_admin, manager, teller, customer | standard |  |
 | GET | `/api/v1/auth/me` | Current principal, effective permissions and (for customers) profile | authenticated | super_admin, manager, teller, customer | standard |  |
 | GET | `/api/v1/auth/permissions` | Effective permissions of the current user | authenticated | super_admin, manager, teller, customer | standard |  |
 | POST | `/api/v1/auth/change-password` | Change own password | authenticated | super_admin, manager, teller, customer | critical |  |

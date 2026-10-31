@@ -17,7 +17,7 @@
 Each endpoint is declared once in `backend/src/lib/registry.js#route()` with its method, path, required permission(s), optional role restriction, risk level, step-up flag and Zod schemas for params, query and body. The registry builds the middleware chain:
 
 1. **Guardrail tracker** (critical/high routes only): records the call in `guardrailEvents` when the response finishes, whatever the outcome.
-2. **Authentication**: verifies the HS256 JWT (issuer, audience and algorithm are pinned), then loads the session and the user on **every request**, so logout, deactivation, role changes and password resets take effect immediately. Read-only integration API keys are accepted via `X-API-Key`, limited to their scopes.
+2. **Authentication**: verifies the HS256 JWT (issuer, audience and algorithm are pinned), then loads the session and the user on **every request**, so deactivation, role changes and password resets take effect immediately. Logout only ends the session (refresh token invalidated); issued access tokens remain valid for their 4-hour lifetime. Read-only integration API keys are accepted via `X-API-Key`, limited to their scopes.
 3. **Role / permission gate**: permissions come from a runtime role→permission map that a super admin can edit within fixed "grantable" bounds. Denials are audited.
 4. **Step-up**: critical operations require the caller's password in `X-Confirm-Password` (HTTP 428 if missing).
 5. **Validation**: strict Zod objects. Unknown fields return 400, which protects against mass assignment.

@@ -6,7 +6,7 @@ const ser = require('../lib/serializers');
 const { ApiError, notFound, forbidden, conflict, badRequest } = require('../lib/errors');
 const { nowIso, paginate, includesText } = require('../lib/util');
 const { hashPassword, isStrongPassword, PASSWORD_RULES, generateTempPassword } = require('../lib/password');
-const { revokeUserSessions, isSessionLive } = require('../lib/auth');
+const { revokeUserSessions, isSessionActive } = require('../lib/auth');
 const { hasPermission } = require('../lib/permissions');
 const { audit } = require('../lib/audit');
 const { notifyUser, sendEmail } = require('../lib/notify');
@@ -299,7 +299,7 @@ route({
   response: { array: 'Session' },
   handler: (req, res) => {
     const target = loadVisible(req.user, req.v.params.id);
-    res.json({ data: db.sessions.filter((x) => x.userId === target.id && isSessionLive(x)).map((x) => ser.session(x, req.session.id)) });
+    res.json({ data: db.sessions.filter((x) => x.userId === target.id && isSessionActive(x)).map((x) => ser.session(x, req.session.id)) });
   },
 });
 

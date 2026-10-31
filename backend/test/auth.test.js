@@ -57,12 +57,43 @@ test('refresh tokens rotate and reuse revokes the session', async () => {
   assert.equal((await client(r1.body.data.accessToken).get('/auth/me')).status, 401);
 });
 
-test('logout revokes the access token immediately', async () => {
+test('logout ends the session but issued access tokens stay valid until expiry', async () => {
   const res = await login('teller2.lakeshore@kestrelbank.test', PW.teller);
-  const c = client(res.body.data.accessToken);
-  assert.equal((await c.get('/auth/me')).status, 200);
+  const { accessToken, refreshToken } = res.body.data;
+  const c = client(accessToken);
   assert.equal((await c.post('/auth/logout')).status, 200);
-  assert.equal((await c.get('/auth/me')).status, 401);
+  // The access token keeps working on any endpoint after logout...
+  assert.equal((await c.get('/auth/me')).status, 200);
+  assert.equal((await c.get('/accounts?pageSize=1')).status, 200);
+  // ...but the session cannot be continued: the refresh token is dead.
+  const r = await request(app).post('/api/v1/auth/refresh').send({ refreshToken });
+  assert.equal(r.status, 401);
+  // Logged-out sessions no longer appear as active sessions.
+  const fresh = client((await login('teller2.lakeshore@kestrelbank.test', PW.teller)).body.data.accessToken);
+  const sessions = (await fresh.get('/auth/sessions')).body.data;
+  assert.ok(sessions.every((s) => s.id !== JSON.parse(Buffer.from(accessToken.split('.')[1], 'base64url')).sid));
+});
+
+test('access tokens are issued for 4 hours', async () => {
+  const res = await login('teller3.downtown@kestrelbank.test', PW.teller);
+  assert.equal(res.body.data.expiresIn, 4 * 60 * 60);
+  const claims = JSON.parse(Buffer.from(res.body.data.accessToken.split('.')[1], 'base64url'));
+  assert.equal(claims.exp - claims.iat, 4 * 60 * 60);
+});
+
+test('logout-all ends every session without invalidating issued access tokens', async () => {
+  const a = await login('teller1.northside@kestrelbank.test', PW.teller);
+  const b = await login('teller1.northside@kestrelbank.test', PW.teller);
+  assert.equal((await client(a.body.data.accessToken).post('/auth/logout-all')).status, 200);
+  assert.equal((await client(b.body.data.accessToken).get('/auth/me')).status, 200);
+  assert.equal((await request(app).post('/api/v1/auth/refresh').send({ refreshToken: b.body.data.refreshToken })).status, 401);
+});
+
+test('password change still revokes other sessions\' access tokens immediately', async () => {
+  const other = await login('teller2.westfield@kestrelbank.test', PW.teller);
+  const me = await login('teller2.westfield@kestrelbank.test', PW.teller);
+  assert.equal((await client(me.body.data.accessToken).post('/auth/change-password', { currentPassword: PW.teller, newPassword: 'Changed@Pass2026' })).status, 200);
+  assert.equal((await client(other.body.data.accessToken).get('/auth/me')).status, 401);
 });
 
 test('tampered or unsigned tokens are rejected', async () => {

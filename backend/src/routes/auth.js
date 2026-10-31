@@ -7,7 +7,7 @@ const ser = require('../lib/serializers');
 const { ApiError, unauthorized, notFound, conflict, badRequest } = require('../lib/errors');
 const { nowIso, sha256 } = require('../lib/util');
 const { hashPassword, verifyPassword, isStrongPassword, PASSWORD_RULES } = require('../lib/password');
-const { createSession, rotateRefreshToken, revokeSession, revokeUserSessions, adminIpAllowed } = require('../lib/auth');
+const { createSession, rotateRefreshToken, revokeSession, revokeUserSessions, endSession, endUserSessions, isSessionActive, adminIpAllowed } = require('../lib/auth');
 const { permissionsFor } = require('../lib/permissions');
 const { audit } = require('../lib/audit');
 const { notifyUser, sendEmail, setting } = require('../lib/notify');
@@ -84,9 +84,10 @@ route({
 
 route({
   method: 'post', path: '/auth/logout', tag: TAG,
-  summary: 'Revoke the current session',
+  summary: 'Log out of the current session',
+  description: 'Invalidates the refresh token so the client must sign in again. Access tokens already issued remain valid until they expire (4 hours by default).',
   handler: (req, res) => {
-    if (req.session) revokeSession(req.session, 'logout');
+    if (req.session) endSession(req.session);
     audit(req, { action: 'auth.logout', entityType: 'user', entityId: req.user.id });
     res.json({ data: { message: 'Logged out' } });
   },
@@ -94,11 +95,12 @@ route({
 
 route({
   method: 'post', path: '/auth/logout-all', tag: TAG,
-  summary: 'Revoke all sessions of the current user',
+  summary: 'Log out of all sessions of the current user',
+  description: 'Invalidates every refresh token of the user. Access tokens already issued remain valid until they expire.',
   handler: (req, res) => {
-    const count = revokeUserSessions(req.user.id, 'logout_all');
-    audit(req, { action: 'auth.logout_all', entityType: 'user', entityId: req.user.id, details: { sessionsRevoked: count } });
-    res.json({ data: { message: `Revoked ${count} session(s)` } });
+    const count = endUserSessions(req.user.id);
+    audit(req, { action: 'auth.logout_all', entityType: 'user', entityId: req.user.id, details: { sessionsEnded: count } });
+    res.json({ data: { message: `Logged out of ${count} session(s)` } });
   },
 });
 
@@ -189,7 +191,7 @@ route({
   summary: 'List own active sessions',
   response: { array: 'Session' },
   handler: (req, res) => {
-    const list = db.sessions.filter((x) => x.userId === req.user.id && !x.revokedAt && x.expiresAt > nowIso());
+    const list = db.sessions.filter((x) => x.userId === req.user.id && isSessionActive(x));
     res.json({ data: list.map((x) => ser.session(x, req.session && req.session.id)) });
   },
 });

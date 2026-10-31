@@ -216,8 +216,8 @@
           "Authentication"
         ],
         "operationId": "postAuthLogout",
-        "summary": "Revoke the current session",
-        "description": "",
+        "summary": "Log out of the current session",
+        "description": "Invalidates the refresh token so the client must sign in again. Access tokens already issued remain valid until they expire (4 hours by default).",
         "responses": {
           "200": {
             "description": "Success",
@@ -260,8 +260,8 @@
           "Authentication"
         ],
         "operationId": "postAuthLogoutAll",
-        "summary": "Revoke all sessions of the current user",
-        "description": "",
+        "summary": "Log out of all sessions of the current user",
+        "description": "Invalidates every refresh token of the user. Access tokens already issued remain valid until they expire.",
         "responses": {
           "200": {
             "description": "Success",

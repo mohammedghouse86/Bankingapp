@@ -39,7 +39,7 @@ Routing uses URL hashes (`/#/accounts/12`), so deep links and refreshes work on 
 | `NODE_ENV` | `development` | `production` makes `JWT_SECRET` mandatory |
 | `JWT_SECRET` | dev-only value | HMAC key for access tokens — **required in production** |
 | `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Comma-separated browser origins allowed to call the API (`*` allows any) |
-| `ACCESS_TOKEN_TTL_SECONDS` | `900` | Access token lifetime |
+| `ACCESS_TOKEN_TTL_SECONDS` | `14400` (4 hours) | Access token lifetime. Tokens stay valid until this expiry even after logout |
 | `REFRESH_TOKEN_TTL_SECONDS` | `43200` | Session (refresh token) lifetime |
 | `RATE_LIMIT_MAX` | `600` | Requests per minute per IP across the API |
 | `AUTH_RATE_LIMIT_MAX` | `30` | Per 15 minutes per IP for login, registration, password reset, refresh, account lookup |

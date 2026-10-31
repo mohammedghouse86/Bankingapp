@@ -18,7 +18,7 @@ module.exports = {
   isProd,
   port: Number(env.PORT || 4000),
   jwtSecret,
-  accessTokenTtlSec: Number(env.ACCESS_TOKEN_TTL_SECONDS || 900),
+  accessTokenTtlSec: Number(env.ACCESS_TOKEN_TTL_SECONDS || 4 * 60 * 60),
   refreshTokenTtlSec: Number(env.REFRESH_TOKEN_TTL_SECONDS || 60 * 60 * 12),
   corsOrigins: list(env.CORS_ORIGINS, 'http://localhost:5173,http://127.0.0.1:5173'),
   trustProxy: env.TRUST_PROXY || (isProd ? '1' : 'loopback'),
