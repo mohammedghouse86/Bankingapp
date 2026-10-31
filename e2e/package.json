@@ -1,0 +1,11 @@
+{
+  "name": "kestrel-bank-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node ui-smoke.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.49.1"
+  }
+}
