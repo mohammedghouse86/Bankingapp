@@ -29,7 +29,7 @@ After the deploy, check `https://<service>.onrender.com/health` and the interact
 
 Routing uses URL hashes (`/#/accounts/12`), so deep links and refreshes work on GitHub Pages without 404 rewrites. The build uses relative asset paths, so any repository name works.
 
-**Changing the API URL without rebuilding:** edit `config.js` at the site root (`window.__KESTREL_CONFIG__.apiUrl`).
+**API URL:** `frontend/public/config.js` points GitHub Pages hosts at `https://bankingapp-kpp3.onrender.com`; change it there (or in the deployed `config.js`) if the Render URL changes. The `API_URL` repository variable is only a fallback.
 
 ## Environment variables (API)
 
