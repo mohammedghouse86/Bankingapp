@@ -42,6 +42,7 @@ function navFor(auth) {
       can('branches:manage') ? { to: '/branches', label: 'Branches', icon: Building2 } : (role === 'manager' && user.branchId && { to: `/branches/${user.branchId}`, label: 'My branch', icon: Building2 }),
       can('reports:branch', 'reports:system') && { to: '/reports', label: 'Reports', icon: BarChart3 },
       can('audit:read') && { to: '/audit-logs', label: 'Audit logs', icon: ClipboardList },
+      role === 'manager' && { to: '/admin/restricted', label: 'Restricted records', icon: ShieldCheck },
       can('settings:manage', 'roles:manage') && { to: '/settings', label: 'Settings & roles', icon: Settings },
       can('system:network', 'system:api_keys') && { to: '/security', label: 'Security & network', icon: Network },
     ] },

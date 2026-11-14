@@ -23,6 +23,7 @@ require('./routes/notifications');
 require('./routes/branches');
 require('./routes/reports');
 require('./routes/admin');
+require('./routes/restricted');
 
 let openApiDoc;
 function openApi() {

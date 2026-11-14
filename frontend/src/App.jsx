@@ -15,6 +15,7 @@ import { ServiceRequests, ServiceRequestDetail, Disputes, DisputeDetail } from '
 import { Employees, EmployeeDetail, Branches, BranchDetail } from './pages/org';
 import { Reports, AuditLogs, SettingsPage, SecurityPage } from './pages/admin';
 import { Profile, Notifications } from './pages/me';
+import { RestrictedRecords } from './pages/restricted';
 
 class ErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { error: null }; }
@@ -106,6 +107,7 @@ export default function App() {
                   <Route path="audit-logs" element={<Guard perms={['audit:read']}><AuditLogs /></Guard>} />
                   <Route path="settings" element={<Guard perms={['settings:manage', 'roles:manage']}><SettingsPage /></Guard>} />
                   <Route path="security" element={<Guard perms={['system:network', 'system:api_keys', 'audit:read']}><SecurityPage /></Guard>} />
+                  <Route path="admin/restricted" element={<RestrictedRecords />} />
                   <Route path="notifications" element={<Notifications />} />
                   <Route path="profile" element={<Profile />} />
                   <Route path="*" element={<NotFound />} />
